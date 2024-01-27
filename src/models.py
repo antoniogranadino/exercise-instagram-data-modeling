@@ -7,26 +7,47 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+class User(Base):
+    __tablename__= 'user'
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    id = Column(Integer, primary_key = True)
+    username = Column(String(50), nullable = False, unique = True)
+    password = Column(String(250), nullable = False)
+    post = relationship("Post", backref = "user")
+    comment = relationship("Comment", backref = "user")
+    like = relationship("Like", backref = "user")
 
-    def to_dict(self):
-        return {}
+
+
+class Post(Base):
+    __tablename__ = 'post'
+
+    id = Column(Integer, primary_key = True)
+    description = Column(String(200))
+    user_id = Column(Integer, ForeignKey("user.id"))
+    comment = relationship("Comment", backref = "post")
+    like = relationship("Like", backref = "post")
+
+
+class Comment(Base):
+    __tablename__ = 'comment'
+
+    id = Column(Integer, primary_key = True)
+    replies = Column(String(500), nullable = False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable = False)
+    post_id = Column(Integer, ForeignKey("post.id"), nullable = False)
+    like = relationship("Like", backref = "comment")
+
+
+
+class Like(Base):
+    __tablename__ = "like"
+
+    id = Column(Integer, primary_key = True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable = False)
+    post_id = Column(Integer, ForeignKey("post.id"), nullable = False)
+    comment_id = Column(Integer, ForeignKey("comment.id"), nullable = False)
+
 
 ## Draw from SQLAlchemy base
 try:
